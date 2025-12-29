@@ -24,6 +24,10 @@ func main() {
 	other := logger.NewLogger("ExplicitService")
 	other.Error("an explicit service error")
 
+	// ejemplo de uso de Fatal
+	// descomenta la siguiente línea para probar el cierre del programa con Fatal
+	// other.Fatal("an unrecoverable error, exiting")
+
 	// small sleep to ensure logs appear in simple examples
 	time.Sleep(10 * time.Millisecond)
 }
