@@ -13,6 +13,7 @@ type Logger struct {
 
 // NewLogger is a logger constructor
 func NewLogger(serviceName string) *Logger {
+	log.SetFlags(0)
 	return &Logger{serviceName: serviceName}
 }
 
@@ -21,6 +22,13 @@ func (l *Logger) write(level, serviceName, msg string) {
 	timestamp := time.Now().Format(time.RFC3339)
 	logMessage := fmt.Sprintf("[%s][%s][%s] %s", timestamp, level, serviceName, msg)
 	log.Println(logMessage)
+}
+
+// Fatal logs a message at fatal level and exits the program
+func (l *Logger) Fatal(msg string) {
+	timestamp := time.Now().Format(time.RFC3339)
+	logMessage := fmt.Sprintf("[%s][%s][%s] %s", timestamp, "FATAL", l.serviceName, msg)
+	log.Fatal(logMessage)
 }
 
 // Log writes a log using the service name from ctx if present, otherwise uses the logger's serviceName

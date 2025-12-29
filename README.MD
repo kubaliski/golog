@@ -16,7 +16,7 @@ go get github.com/kubaliski/golog
 
 - Context-based service name propagation
 - Structured log format with timestamp, level, and service name
-- Simple API with common log levels (INFO, ERROR, WARN, DEBUG)
+- Simple API with common log levels (INFO, ERROR, WARN, DEBUG, FATAL)
 
 ## Log Format
 
