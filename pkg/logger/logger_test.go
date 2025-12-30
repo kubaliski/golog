@@ -1,7 +1,10 @@
 package logger
 
 import (
+	"bytes"
 	"context"
+	"log"
+	"strings"
 	"testing"
 )
 
@@ -70,5 +73,76 @@ func TestSetServiceName(t *testing.T) {
 
 	if got := GetServiceName(ctx); got != serviceName {
 		t.Errorf("GetServiceName() = %v, want %v", got, serviceName)
+	}
+}
+
+func captureOutput(f func()) string {
+	var buf bytes.Buffer
+	orig := log.Writer()
+	log.SetOutput(&buf)
+	defer log.SetOutput(orig)
+	f()
+	return buf.String()
+}
+
+func TestInfofLogger(t *testing.T) {
+	ctx = SetServiceName(context.Background(), "InfofService")
+	logger := FromContext(ctx)
+
+	out := captureOutput(func() {
+		logger.Infof("Hello %s %d", "world", 1)
+	})
+
+	if !strings.Contains(out, "Hello world 1") {
+		t.Fatalf("expected formatted message in output, got: %q", out)
+	}
+	if !strings.Contains(out, "INFO") {
+		t.Fatalf("expected level INFO in output, got: %q", out)
+	}
+	if !strings.Contains(out, "InfofService") {
+		t.Fatalf("expected service name InfofService in output, got: %q", out)
+	}
+}
+
+func TestErrorfWarnfDebugfLogger(t *testing.T) {
+	ctx = SetServiceName(context.Background(), "FmtService")
+	logger := FromContext(ctx)
+
+	outErr := captureOutput(func() {
+		logger.Errorf("error: %v", "oops")
+	})
+	if !strings.Contains(outErr, "error: oops") || !strings.Contains(outErr, "ERROR") {
+		t.Fatalf("unexpected Errorf output: %q", outErr)
+	}
+
+	outWarn := captureOutput(func() {
+		logger.Warnf("warn: %s", "careful")
+	})
+	if !strings.Contains(outWarn, "warn: careful") || !strings.Contains(outWarn, "WARN") {
+		t.Fatalf("unexpected Warnf output: %q", outWarn)
+	}
+
+	outDebug := captureOutput(func() {
+		logger.Debugf("debug: %d", 42)
+	})
+	if !strings.Contains(outDebug, "debug: 42") || !strings.Contains(outDebug, "DEBUG") {
+		t.Fatalf("unexpected Debugf output: %q", outDebug)
+	}
+}
+
+func TestLogfUsesCtxServiceName(t *testing.T) {
+	// logger has default service name but ctx should override
+	logger := NewLogger("DefaultService")
+	ctx := SetServiceName(context.Background(), "CtxService")
+
+	out := captureOutput(func() {
+		logger.Logf(ctx, "INFO", "msg %s", "ok")
+	})
+
+	if !strings.Contains(out, "msg ok") {
+		t.Fatalf("expected formatted message in output, got: %q", out)
+	}
+	if !strings.Contains(out, "CtxService") {
+		t.Fatalf("expected ctx service name in output, got: %q", out)
 	}
 }

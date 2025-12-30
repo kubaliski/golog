@@ -62,6 +62,36 @@ func (l *Logger) Debug(msg string) {
 	l.write("DEBUG", l.serviceName, msg)
 }
 
+// Debugf is a wrapper for debug level formatted log
+func (l *Logger) Debugf(format string, args ...interface{}) {
+	l.Debug(fmt.Sprintf(format, args...))
+}
+
+// Infof is a wrapper for info level formatted log
+func (l *Logger) Infof(format string, args ...interface{}) {
+	l.Info(fmt.Sprintf(format, args...))
+}
+
+// Errorf is a wrapper for error level formatted log
+func (l *Logger) Errorf(format string, args ...interface{}) {
+	l.Error(fmt.Sprintf(format, args...))
+}
+
+// Warnf is a wrapper for warn level formatted log
+func (l *Logger) Warnf(format string, args ...interface{}) {
+	l.Warn(fmt.Sprintf(format, args...))
+}
+
+// Fatalf logs a formatted message at fatal level and exits the program
+func (l *Logger) Fatalf(format string, args ...interface{}) {
+	l.Fatal(fmt.Sprintf(format, args...))
+}
+
+// Logf writes a log using the service name from ctx if present, otherwise uses the logger's serviceName, with a formatted message
+func (l *Logger) Logf(ctx context.Context, level, format string, args ...interface{}) {
+	l.Log(ctx, level, fmt.Sprintf(format, args...))
+}
+
 // FromContext get de serviceName from ctx
 func FromContext(ctx context.Context) *Logger {
 	return NewLogger(GetServiceName(ctx))

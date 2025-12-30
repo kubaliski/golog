@@ -17,6 +17,8 @@ go get github.com/kubaliski/golog
 - Context-based service name propagation
 - Structured log format with timestamp, level, and service name
 - Simple API with common log levels (INFO, ERROR, WARN, DEBUG, FATAL)
+ - Formatted log helpers (`Infof`, `Errorf`, `Warnf`, `Debugf`, `Logf`) for building messages with variables
+ - `Fatal` and `Fatalf` to log a critical message and exit the program
 
 ## Log Format
 
@@ -97,6 +99,28 @@ func main() {
     ctx := logger.SetServiceName(context.Background(), "override-service")
     log.Log(ctx, "INFO", "This will use override-service as the service name")
 }
+```
+
+### Formatted logging (nuevos métodos)
+
+Use los helpers `*f` para construir mensajes con variables sin concatenar:
+
+```go
+lg := logger.FromContext(ctx)
+lg.Infof("started service %s (port=%d)", "api", 8080)
+lg.Debugf("cache hit rate=%.2f", 0.93)
+
+ctxOverride := logger.SetServiceName(context.Background(), "worker")
+lg.Logf(ctxOverride, "WARN", "task %s took %dms", "cleanup", 123)
+```
+
+### Fatal logging
+
+`Fatal` y `Fatalf` registran un mensaje crítico y llaman a `log.Fatal(...)`, lo que termina el proceso. Úselos con precaución cuando necesite terminar la aplicación por un error irrecuperable.
+
+```go
+other := logger.NewLogger("ExplicitService")
+other.Fatalf("configuration missing: %s", "db_url")
 ```
 
 ## API Reference
